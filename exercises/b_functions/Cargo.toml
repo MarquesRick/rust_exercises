@@ -1,0 +1,9 @@
+[package]
+name = "b_functions"
+version = "2.3.4"
+edition = "2021"
+authors = ["Henrique Marques <hmservicostech@outlook.com.br>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
