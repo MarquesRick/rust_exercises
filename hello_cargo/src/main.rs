@@ -1,3 +1,10 @@
+use hello_cargo::greet;
 fn main() {
-    println!("Hello, world!");
+    //two way to do the same thing
+
+    //using 'use' to import a function
+    greet();
+    //not using 'use', passing the relative path
+    //(hello_cargo -> project name in Cargo.toml + function name -> greet())
+    hello_cargo::greet();
 }
