@@ -15,6 +15,7 @@ fn main() {
     // The `print_difference` function is defined below the `main` function. It may help if you look
     // at how it is defined.
     //
+
     print_difference(coords.0, coords.1);
 
     // 2. We want to use the `print_array` function to print coords...but coords isn't an array!
