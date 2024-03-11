@@ -1,0 +1,1 @@
+/Users/hmarques/work/Projetos/rust/exercises/c_simple_types/target/debug/ding_machine: /Users/hmarques/work/Projetos/rust/exercises/c_simple_types/src/lib.rs /Users/hmarques/work/Projetos/rust/exercises/c_simple_types/src/main.rs
