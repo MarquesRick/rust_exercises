@@ -1,4 +1,6 @@
 mod services;
+mod schema;
+mod model;
 
 use actix_web::{App, HttpServer};
 
