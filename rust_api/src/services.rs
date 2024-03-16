@@ -1,5 +1,5 @@
 use actix_web::{
-    get, post,
+    delete, get, post,
     web::{scope, Data, Json, Path, Query, ServiceConfig},
     HttpResponse, Responder,
 };
@@ -101,7 +101,44 @@ async fn get_task_by_id(path: Path<Uuid>, data: Data<AppState>) -> impl Responde
 
             return HttpResponse::Ok().json(json_response);
         }
+        Err(sqlx::Error::RowNotFound) => {
+            // Handle the case where no row is found
+            println!("No row found for the given query");
+            return HttpResponse::NotFound().json(json!({
+                "status": "",
+                "message": "No row found for the given query".to_string()
+            }));
+        }
         Err(error) => {
+            return HttpResponse::InternalServerError().json(json!({
+                "status": "",
+                "message": format!("{:?}", error)
+            }));
+        }
+    }
+}
+
+#[delete("/task/{id}")]
+async fn delete_task_by_id(path: Path<Uuid>, data: Data<AppState>) -> impl Responder {
+    let task_id = path.into_inner();
+
+    match sqlx::query_as!(TaskModel, "DELETE FROM tasks WHERE id = $1", task_id)
+        .execute(&data.db)
+        .await
+    {
+        Ok(_) => {
+            return HttpResponse::NoContent().finish();
+        }
+        Err(sqlx::Error::RowNotFound) => {
+            // Handle the case where no row is found
+            println!("No row found for the given query");
+            return HttpResponse::NotFound().json(json!({
+                "status": "",
+                "message": "No row found for the given query".to_string()
+            }));
+        }
+        Err(error) => {
+            println!("{:?}", error);
             return HttpResponse::InternalServerError().json(json!({
                 "status": "",
                 "message": format!("{:?}", error)
@@ -115,6 +152,7 @@ pub fn config(conf: &mut ServiceConfig) {
         .service(health_checker)
         .service(create_task)
         .service(get_all_tasks)
-        .service(get_task_by_id);
+        .service(get_task_by_id)
+        .service(delete_task_by_id);
     conf.service(scope);
 }
