@@ -1,5 +1,6 @@
+use actix::Message;
 use actix_web::{
-    delete, get, post,
+    delete, get, patch, post,
     web::{scope, Data, Json, Path, Query, ServiceConfig},
     HttpResponse, Responder,
 };
@@ -9,7 +10,7 @@ use uuid::{uuid, Uuid};
 
 use crate::{
     model::TaskModel,
-    schema::{CreateTaskSchema, FilterOptions},
+    schema::{CreateTaskSchema, FilterOptions, UpdateTaskSchema},
     AppState,
 };
 
@@ -147,12 +148,63 @@ async fn delete_task_by_id(path: Path<Uuid>, data: Data<AppState>) -> impl Respo
     }
 }
 
+#[patch("/task/{id}")]
+async fn update_task_by_id(
+    path: Path<Uuid>,
+    body: Json<UpdateTaskSchema>,
+    data: Data<AppState>,
+) -> impl Responder {
+    let task_id = path.into_inner();
+
+    match sqlx::query_as!(TaskModel, "SELECT * FROM tasks WHERE id = $1", task_id)
+        .fetch_one(&data.db)
+        .await
+    {
+        Ok(tasks) => {
+            match sqlx::query_as!(
+                TaskModel,
+                "UPDATE tasks SET content = $1, title = $2 WHERE id = $3 RETURNING *",
+                body.content.to_owned().unwrap_or(tasks.content),
+                body.title.to_owned().unwrap_or(tasks.title),
+                task_id
+            )
+            .fetch_one(&data.db)
+            .await
+            {
+                Ok(task) => {
+                    let task_respnse = json!({
+                        "status": "success",
+                        "task": task
+                    });
+
+                    return HttpResponse::Ok().json(task_respnse);
+                }
+                Err(error) => {
+                    let message = format!("{:?}", error);
+                    return HttpResponse::InternalServerError().json(json!({
+                        "status": "error",
+                        "message": message
+                    }));
+                }
+            }
+        }
+        Err(error) => {
+            let message = format!("{:?}", error);
+            return HttpResponse::NotFound().json(json!({
+                "status": "not found",
+                "message": message
+            }));
+        }
+    }
+}
+
 pub fn config(conf: &mut ServiceConfig) {
     let scope = scope("/api")
         .service(health_checker)
         .service(create_task)
         .service(get_all_tasks)
         .service(get_task_by_id)
-        .service(delete_task_by_id);
+        .service(delete_task_by_id)
+        .service(update_task_by_id);
     conf.service(scope);
 }
