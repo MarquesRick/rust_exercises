@@ -4,7 +4,7 @@ fn main() {
 
     //using 'use' to import a function
     greet();
-    //not using 'use', passing the relative path
+    //not using 'use', passing the relative path would be:
     //(hello_cargo -> project name in Cargo.toml + function name -> greet())
-    hello_cargo::greet();
+    //hello_cargo::greet();
 }
