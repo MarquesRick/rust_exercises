@@ -39,13 +39,33 @@ $ cargo build
 ```
 
 ```bash
+# Build and generate release
+$ cargo build && cargo build --release
+```
+
+```bash
 # Run default with cargo
 $ cargo run
 ```
 
 ```bash
+# Run with backtrace in case of panic!
+$ RUST_BACKTRACE=1 cargo run
+```
+
+```bash
+# Cargo will format the code
+$ cargo fmt
+```
+
+```bash
 # Run with watch (reload automatically when code is changed)
 $ cargo watch -q -c -w src/ -x run
+```
+
+```bash
+# Run with watch (reload automatically when code is changed) - Opt 2
+$ cargo watch -x run
 ```
 
 ```bash

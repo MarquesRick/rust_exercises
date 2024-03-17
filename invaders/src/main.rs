@@ -1,5 +1,8 @@
+use crossterm::{
+    cursor::{Hide, Show}, event, terminal::{self, EnterAlternateScreen, LeaveAlternateScreen}, ExecutableCommand
+};
 use rusty_audio::Audio;
-use std::error::Error;
+use std::{error::Error, io, time::Duration};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut audio = Audio::new();
@@ -11,7 +14,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     audio.add("win", "src/sounds/win.wav");
     audio.play("startup");
 
+    //terminal
+    let mut stdout = io::stdout();
+    terminal::enable_raw_mode()?;
+    stdout.execute(EnterAlternateScreen)?;
+    stdout.execute(Hide)?;
+
+    //game loop
+    'gameloop: loop {
+        //input
+        while event::poll(Duration::default())? {
+            
+        }
+    }
+
     //cleanup
     audio.wait();
+    stdout.execute(Show)?;
+    stdout.execute(LeaveAlternateScreen)?;
+    terminal::disable_raw_mode()?;
     Ok(())
 }
