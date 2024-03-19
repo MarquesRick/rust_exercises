@@ -96,3 +96,4 @@ $ sqlx migrate revert
 ### Documentation
 
 - [Cargo Watch](https://crates.io/crates/cargo-watch)
+- [Min Sized Rust - Minimizing Rust Binary Size](https://github.com/johnthagen/min-sized-rust)
