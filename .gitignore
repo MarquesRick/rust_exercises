@@ -17,4 +17,6 @@
 # Files from macOS
 .DS_Store
 
+**/*.txt
+
 **/.env
