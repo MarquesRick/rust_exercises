@@ -1,36 +1,55 @@
-use std::fs::File;
-use std::io::{BufRead, BufReader};
+use regex::Regex;
+use std::{
+    env,
+    error::Error,
+    fs::File,
+    io::{BufRead, BufReader, Write},
+    path::Path,
+};
 
-fn main() {
-    // path file
-    let path_file = "src/dado.txt";
+fn main() -> Result<(), Box<dyn Error>> {
+    let re = Regex::new(r"└\s\d+\-")?;
+    let re_2 = Regex::new(r"└\s\d+\s-")?;
 
-    // open file to read
-    let file = match File::open(path_file) {
-        Ok(file) => file,
-        Err(e) => {
-            eprintln!("Error to open the file: {}", e);
-            return;
-        }
-    };
+    let dir = env::current_dir().expect("Error getting current dir..");
+    println!("Diretório atual: {:?}", dir);
+    let filename = "data.txt";
+    let full_path = Path::new(&dir).join("src").join(filename);
+    println!("Diretório full path: {:?}", full_path);
+    // Abrir o arquivo de entrada
+    let input_file = File::open(full_path)?;
+    let input_reader = BufReader::new(input_file);
 
-    let reader = BufReader::new(file);
+    // Abrir ou criar o arquivo de saída em inglês
+    let dir_output = env::current_dir().expect("Error getting current dir..");
+    let full_path_output = Path::new(&dir_output).join("src").join("output.txt");
+    let mut output_file = File::create(full_path_output)?;
 
-    for line in reader.lines() {
-        let line = match line {
-            Ok(line) => line,
-            Err(e) => {
-                eprintln!("Error to read the line: {}", e);
+    // Processar cada linha do arquivo de entrada
+    for line in input_reader.lines() {
+        let line = line?;
+        // Verificar se a linha contém um espaço, número, ponto final e espaço
+        // if re.is_match(&line) || re.is_match(&line) {
+        //     writeln!(output_file, "{}", line)?;
+        // }
+
+        match line {
+            x if re.is_match(&x) => {
+                writeln!(output_file, "{}", x)?;
                 continue;
             }
-        };
-
-        if line.contains(' ') && line.contains('.') && line.contains(' ') {
-            println!("{}", line);
-        }
-
-        if line.starts_with("└") && line.contains('-') {
-            println!("{}", line);
+            x if re_2.is_match(&x) => {
+                writeln!(output_file, "{}", x)?;
+                continue;
+            }
+            _ => {
+                print!("");
+                continue;
+            }
         }
     }
+
+    println!("Linhas filtradas copiadas para output.txt com sucesso!");
+
+    Ok(())
 }
